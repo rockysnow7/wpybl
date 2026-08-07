@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Annotated
 
 
@@ -49,6 +49,8 @@ class PitchEventType(str, Enum):
 
 
 class PitchEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     sequence: Annotated[int, Field(ge=1)]
     code: PitchEventCode
     type: PitchEventType
@@ -56,6 +58,8 @@ class PitchEvent(BaseModel):
 
 
 class Play(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     inning: Annotated[int, Field(ge=1)]
     half: Half
     team_id: str
@@ -71,6 +75,8 @@ class Play(BaseModel):
     narrative: str
     event_type: EventType
     is_hit: bool
+    is_scoring_play: bool = False
+    runs_scored: Annotated[int, Field(ge=0, le=4)] = 0
     pitch_sequence: str
     pitch_events: list[PitchEvent] | None = None
     fouls: Annotated[int, Field(ge=0)]

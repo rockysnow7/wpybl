@@ -1,12 +1,9 @@
-from dataclasses import dataclass
 from download_data import download_all_games
 from game import Game
 from glob import glob
-from play import Play
 from tqdm import tqdm
 
 import json
-import os
 
 
 if __name__ == "__main__":

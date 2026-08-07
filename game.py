@@ -2,8 +2,9 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from play import Play
-from pydantic import BaseModel, Field, BeforeValidator
+from pydantic import BaseModel, Field, BeforeValidator, ConfigDict
 from team import Team
+from tracking_activity import TrackingActivity
 from typing import Annotated, Any
 
 
@@ -13,6 +14,8 @@ class GameStatus(str, Enum):
 
 
 class Status(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     complete: bool
     inning: Annotated[int, Field(ge=0)]
     half: str
@@ -32,6 +35,8 @@ class Status(BaseModel):
 
 
 class Game(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     game_id: str
     provider: str
     game_status: GameStatus
@@ -40,7 +45,7 @@ class Game(BaseModel):
     status: Status
     teams: list[Team]
     plays: list[Play]
-    tracking_activity: list | None = None
+    tracking_activity: list[TrackingActivity] | None = None
 
     @staticmethod
     def from_json(json: dict) -> Game:
