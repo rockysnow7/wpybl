@@ -1,10 +1,10 @@
 from __future__ import annotations
 from datetime import datetime
 from enum import Enum
-from play import Play
+from .play import Play
 from pydantic import BaseModel, Field, BeforeValidator, ConfigDict
-from team import Team
-from tracking_activity import TrackingActivity
+from .team import Team
+from .tracking_activity import TrackingActivity
 from typing import Annotated, Any
 
 

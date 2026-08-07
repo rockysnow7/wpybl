@@ -1,16 +1,10 @@
-from download_data import download_all_games
-from game import Game
-from glob import glob
-from tqdm import tqdm
-
-import json
+from data import load_all_games
+from stats.batting import player_batting_counting_stats, player_batting_pct_stats
 
 
 if __name__ == "__main__":
-    download_all_games()
+    games = load_all_games()
 
-    for path in tqdm(glob("data/*.json")):
-        print(path)
-        with open(path) as f:
-            data = json.load(f)
-        game = Game.from_json(data)
+    # stats = player_batting_counting_stats("Denae Benites", games)
+    stats = player_batting_pct_stats("Denae Benites", games)
+    print(stats)
