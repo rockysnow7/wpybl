@@ -9,8 +9,9 @@ import requests
 __API_URL = "https://stats.womensprobaseballleague.com/v1/games/{game_id}/boxscore"
 
 
-"""Fetches the game JSON from the API and saves it to a file. If the file already exists, it does nothing."""
 def __get_game_json(game_id: str, *, timeout: int = 1) -> None:
+    """Fetches the game JSON from the API and saves it to a file. If the file already exists, it does nothing."""
+
     if os.path.exists(f"data/{game_id}.json"):
         return
 
@@ -28,6 +29,7 @@ class GameID:
 
     def __hash__(self):
         return hash((self.game_id, self.final))
+
 
 def __get_all_game_ids() -> set[GameID]:
     url = "https://stats.womensprobaseballleague.com/explorer/games"

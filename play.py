@@ -7,6 +7,7 @@ class Half(str, Enum):
     TOP = "top"
     BOTTOM = "bottom"
 
+
 class EventType(str, Enum):
     UNKNOWN = "unknown"
     SINGLE = "single"
@@ -24,14 +25,19 @@ class EventType(str, Enum):
     STRIKEOUT = "strikeout"
     WALK = "walk"
     STOLEN_BASE = "stolen_base"
+    CAUGHT_STEALING = "caught_stealing"
     WILD_PITCH = "wild_pitch"
+    HIT_BY_PITCH = "hit_by_pitch"
+
 
 class PitchEventCode(str, Enum):
+    HIT = "H"
     CALLED_STRIKE = "K"
     SWINGING_STRIKE = "S"
     BALL = "B"
     PITCHOUT = "P"
     FOUL = "F"
+
 
 class PitchEventType(str, Enum):
     UNKNOWN = "unknown"
@@ -39,12 +45,15 @@ class PitchEventType(str, Enum):
     FOUL = "foul"
     PITCHOUT = "pitchout"
     BALL = "ball"
+    HIT_BY_PITCH = "hit_by_pitch"
+
 
 class PitchEvent(BaseModel):
     sequence: Annotated[int, Field(ge=1)]
     code: PitchEventCode
     type: PitchEventType
     description: str
+
 
 class Play(BaseModel):
     inning: Annotated[int, Field(ge=1)]

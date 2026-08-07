@@ -1,17 +1,19 @@
 from dataclasses import dataclass
 from download_data import download_all_games
-from model import Play
+from game import Game
+from glob import glob
+from play import Play
+from tqdm import tqdm
 
 import json
 import os
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     download_all_games()
 
-    # with open("data.json") as f:
-    #     data = json.load(f)
-    # plays_raw = data["boxscore"]["plays"]
-    
-    # plays: list[Play] = [Play.model_validate(play) for play in plays_raw]
-    # print(plays[0])
+    for path in tqdm(glob("data/*.json")):
+        print(path)
+        with open(path) as f:
+            data = json.load(f)
+        game = Game.from_json(data)
