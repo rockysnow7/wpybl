@@ -1,10 +1,13 @@
 import pandas as pd
 
+from data import GamesCollection
 from raw.game import Game
 from raw.play import EventType
 
 
-def player_batting_counting_stats(player_name: str, games: list[Game]) -> pd.DataFrame:
+def player_batting_counting_stats(
+    player_name: str, games: GamesCollection
+) -> pd.DataFrame:
     df = {
         "games": 0,
         "at_bats": 0,
@@ -70,7 +73,7 @@ def player_batting_counting_stats(player_name: str, games: list[Game]) -> pd.Dat
     return pd.DataFrame([df])
 
 
-def player_batting_pct_stats(player_name: str, games: list[Game]) -> pd.DataFrame:
+def player_batting_pct_stats(player_name: str, games: GamesCollection) -> pd.DataFrame:
     counting_stats = player_batting_counting_stats(player_name, games)
 
     avg = counting_stats["hits"] / counting_stats["at_bats"]

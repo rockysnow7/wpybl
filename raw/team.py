@@ -252,7 +252,7 @@ class Player(BaseModel):
         Field(alias="position"),
         BeforeValidator(PlayerPosition.before_validator),
     ] = None
-    spot: Annotated[int, Field(ge=0)]
+    spot: int
     bats: Hand
     throws: Hand
     hitting: PlayerHitting | None = None
@@ -266,7 +266,7 @@ class Starter(BaseModel):
     name: str
     uniform: int
     position: PlayerPosition
-    spot: Annotated[int, Field(ge=1)]
+    spot: int
 
 
 class Team(BaseModel):
