@@ -1,10 +1,12 @@
 from data import GamesCollection
-from stats.batting import player_batting_counting_stats, player_batting_pct_stats
+from stats.batting import batting_rate_stats
 
 
 if __name__ == "__main__":
-    games = GamesCollection.all()
+    games = GamesCollection.all(frozen=True)
 
-    # stats = player_batting_counting_stats("Isabella Villarreal", games)
-    stats = player_batting_pct_stats("Amanda Gianelloni", games)
+    name = "Alyssa Zettlemoyer"
+    # stats = player_batting_counting_stats(name, games)
+    # stats = player_batting_rate_stats(name, games)
+    stats = batting_rate_stats(games)
     print(stats)

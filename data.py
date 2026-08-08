@@ -24,7 +24,7 @@ def __get_game_json(game_id: str, *, timeout: int = 1) -> None:
     game = requests.get(url, timeout=timeout).json()
     os.makedirs("wpybl_data", exist_ok=True)
     with open(f"wpybl_data/{game_id}.json", "w") as f:
-        json.dump(game, f)
+        json.dump(game, f, indent=4)
 
 
 @dataclass
