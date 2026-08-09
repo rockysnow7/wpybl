@@ -2,8 +2,8 @@
 
 import pandas as pd
 
-from data import GamesCollection
-from raw.play import EventType
+from ..data import GamesCollection
+from ..raw.play import EventType
 
 
 def player_batting_counting_stats(

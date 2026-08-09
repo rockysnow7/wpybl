@@ -5,7 +5,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import date
 from glob import glob
-from raw.game import Game
+from .raw.game import Game
 from tqdm import tqdm
 
 import bs4

@@ -13,14 +13,14 @@ It aims to be equivalent to the [pybaseball](https://github.com/jldbc/pybaseball
 ## Example
 
 ```python
-from data import GamesCollection
-from stats.batting import player_batting_rate_stats
-from stats.pitching import pitching_rate_stats
+from wpybl.data import GamesCollection
+from wpybl.stats.batting import player_batting_rate_stats
+from wpybl.stats.pitching import pitching_rate_stats
 
 if __name__ == "__main__":
     games = GamesCollection.all()
 
-    print(player_batting_pct_stats("Amanda Gianelloni", games))
+    print(player_batting_rate_stats("Amanda Gianelloni", games))
     #      avg    obp    slg    ops
     # 0  0.455  0.538  0.727  1.266
 

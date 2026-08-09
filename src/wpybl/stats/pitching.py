@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from data import GamesCollection
+from ..data import GamesCollection
 
 
 def __innings_pitched_as_decimal(innings_pitched: float) -> float:
