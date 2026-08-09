@@ -62,7 +62,7 @@ class Play(BaseModel):
 
     inning: Annotated[int, Field(ge=1)]
     half: Half
-    team_id: str
+    batting_team_id: Annotated[str, Field(alias="team_id")]
     sequence: Annotated[int, Field(ge=1)]
     batter_name: str
     pitcher_name: str
@@ -79,6 +79,29 @@ class Play(BaseModel):
     runs_scored: Annotated[int, Field(ge=0, le=4)] = 0
     pitch_sequence: str
     pitch_events: list[PitchEvent] | None = None
-    fouls: Annotated[int, Field(ge=0)]
-    balls: Annotated[int, Field(ge=0, le=4)]
-    strikes: Annotated[int, Field(ge=0, le=3)]
+    final_fouls: Annotated[int, Field(ge=0, alias="fouls")]
+    final_balls: Annotated[int, Field(ge=0, le=4, alias="balls")]
+    final_strikes: Annotated[int, Field(ge=0, le=3, alias="strikes")]
+
+    def to_csv_row(self) -> dict[str, str | int | float]:
+        return {
+            "sequence": self.sequence,
+            "inning": self.inning,
+            "half": self.half.value,
+            "outs": self.outs,
+            "batting_team_id": self.batting_team_id,
+            "batter_name": self.batter_name,
+            "pitcher_name": self.pitcher_name,
+            "first_base": self.first_base,
+            "second_base": self.second_base,
+            "third_base": self.third_base,
+            "pitch_sequence": self.pitch_sequence,
+            "final_balls": self.final_balls,
+            "final_strikes": self.final_strikes,
+            "final_fouls": self.final_fouls,
+            "event_type": self.event_type.value,
+            "is_hit": self.is_hit,
+            "is_scoring_play": self.is_scoring_play,
+            "runs_scored": self.runs_scored,
+            "narrative": self.narrative,
+        }

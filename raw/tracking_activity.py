@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from .play import Half
-from pydantic import BaseModel, Field, BeforeValidator, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Annotated, Any
 
 

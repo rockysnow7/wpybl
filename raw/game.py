@@ -2,10 +2,12 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from .play import Play
-from pydantic import BaseModel, Field, BeforeValidator, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict
 from .team import Team, Player
 from .tracking_activity import TrackingActivity
-from typing import Annotated, Any
+from typing import Annotated
+
+import pandas as pd
 
 
 class GameStatus(str, Enum):
@@ -58,3 +60,10 @@ class Game(BaseModel):
             for player in team.players:
                 if player.name == player_name:
                     return player
+
+    def plays_to_csv(self, path: str) -> None:
+        """Converts the game's plays to a CSV file and saves it to the specified path."""
+
+        rows = [play.to_csv_row() for play in self.plays]
+        df = pd.DataFrame(rows)
+        df.to_csv(path, index=False)
