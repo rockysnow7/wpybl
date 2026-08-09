@@ -9,6 +9,6 @@ from stats.pitching import (
 
 
 if __name__ == "__main__":
-    games = GamesCollection.all(frozen=True)
+    games = GamesCollection.all()
 
     print(pitching_rate_stats(games))

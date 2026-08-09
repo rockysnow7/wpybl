@@ -1,3 +1,5 @@
+"""Functions to download and load game data from the WPBL API."""
+
 from __future__ import annotations
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -18,13 +20,13 @@ __API_URL = "https://stats.womensprobaseballleague.com/v1/games/{game_id}/boxsco
 def __get_game_json(game_id: str, *, timeout: int = 1) -> None:
     """Fetches the game JSON from the API and saves it to a file. If the file already exists, it does nothing."""
 
-    if os.path.exists(f"wpybl_data/{game_id}.json"):
+    if os.path.exists(f".wpybl_data/{game_id}.json"):
         return
 
     url = __API_URL.format(game_id=game_id)
     game = requests.get(url, timeout=timeout).json()
-    os.makedirs("wpybl_data", exist_ok=True)
-    with open(f"wpybl_data/{game_id}.json", "w") as f:
+    os.makedirs(".wpybl_data", exist_ok=True)
+    with open(f".wpybl_data/{game_id}.json", "w") as f:
         json.dump(game, f, indent=4)
 
 
@@ -58,7 +60,7 @@ def _download_all_games(*, timeout: int = 1) -> None:
     game_ids = __get_all_game_ids()
     final_game_ids = [game_id for game_id in game_ids if game_id.final]
 
-    for game_id in tqdm(final_game_ids):
+    for game_id in tqdm(final_game_ids, desc="Downloading games"):
         __get_game_json(game_id.game_id, timeout=timeout)
 
 
@@ -69,7 +71,7 @@ class GamesCollection:
         self.games = games
 
     @staticmethod
-    def date_range(start: date, end: date, *, frozen: bool = False) -> GamesCollection:
+    def date_range(start: date, end: date, *, offline: bool = False) -> GamesCollection:
         """
         Returns a GamesCollection containing all games from between the start and end dates (inclusive).
 
@@ -79,39 +81,55 @@ class GamesCollection:
         Args:
             start (date): The start date (inclusive).
             end (date): The end date (inclusive).
-            frozen (bool, optional): If True, new games will not be downloaded. Defaults to False.
+            offline (bool, optional): If True, new games will not be downloaded. Defaults to False.
         """
 
-        if not frozen:
+        if not offline:
             _download_all_games()
 
         games = []
-        for path in glob("wpybl_data/*.json"):
+        for path in tqdm(glob(".wpybl_data/*.json"), desc="Loading games"):
             with open(path) as f:
                 data = json.load(f)
             game = Game.from_json(data)
             if start <= game.source_updated_at <= end:
                 games.append(game)
+
+        if not games:
+            if offline:
+                raise ValueError(
+                    f"No games found. Try running `GamesCollection.date_range({start}, {end}, offline=False)` to download games."
+                )
+            raise ValueError("No games found.")  # this should not be possible
+
         return GamesCollection(games)
 
     @staticmethod
-    def all(*, frozen: bool = False) -> GamesCollection:
+    def all(*, offline: bool = False) -> GamesCollection:
         """
         Returns a GamesCollection containing all games.
 
         Args:
-            frozen (bool, optional): If True, new games will not be downloaded. Defaults to False.
+            offline (bool, optional): If True, new games will not be downloaded. Defaults to False.
         """
 
-        if not frozen:
+        if not offline:
             _download_all_games()
 
         games = []
-        for path in glob("wpybl_data/*.json"):
+        for path in tqdm(glob(".wpybl_data/*.json"), desc="Loading games"):
             with open(path) as f:
                 data = json.load(f)
             game = Game.from_json(data)
             games.append(game)
+
+        if not games:
+            if offline:
+                raise ValueError(
+                    "No games found. Try running `GamesCollection.all(offline=False)` to download games."
+                )
+            raise ValueError("No games found.")  # this should not be possible
+
         return GamesCollection(games)
 
     def __iter__(self) -> Iterator[Game]:

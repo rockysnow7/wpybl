@@ -1,3 +1,5 @@
+"""Functions to calculate batting statistics from game data."""
+
 import pandas as pd
 
 from data import GamesCollection
