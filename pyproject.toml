@@ -1,0 +1,30 @@
+[project]
+name = "wpybl"
+version = "0.0.1"
+authors = [
+    { name = "Finn Eyles", email = "feyles@icloud.com" },
+]
+description = "A Python library for working with Women's Professional Baseball League (WPBL) data."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+]
+license = "MIT"
+license-files = ["LICENSE.md"]
+
+[project.urls]
+Homepage = "https://github.com/rockysnow7/wpybl"
+
+[build-system]
+requires = [
+    "uv_build >= 0.12.1, <0.13.0",
+    "beautifulsoup4==4.15.0",
+    "pandas==3.0.5",
+    "pydantic==2.13.4",
+    "Requests==2.34.2",
+    "tqdm==4.70.0",
+]
+build-backend = "uv_build"

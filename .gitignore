@@ -1,7 +1,7 @@
 __pycache__/
 .venv/
 .vscode/
-data/
+dist/
 *.json
 *.csv
 .wpybl_data/
