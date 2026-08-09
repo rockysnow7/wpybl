@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from .play import Play
 from pydantic import BaseModel, Field, BeforeValidator, ConfigDict
-from .team import Team
+from .team import Team, Player
 from .tracking_activity import TrackingActivity
 from typing import Annotated, Any
 
@@ -52,3 +52,9 @@ class Game(BaseModel):
         if "boxscore" not in json:
             raise ValueError("JSON does not contain a boxscore")
         return Game.model_validate(json["boxscore"])
+
+    def get_player(self, player_name: str) -> Player | None:
+        for team in self.teams:
+            for player in team.players:
+                if player.name == player_name:
+                    return player

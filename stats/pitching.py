@@ -1,7 +1,6 @@
 import pandas as pd
 
 from data import GamesCollection
-from raw.play import EventType
 
 
 def __innings_pitched_as_decimal(innings_pitched: float) -> float:
@@ -39,14 +38,7 @@ def player_pitching_counting_stats(
     }
 
     for game in games:
-        player = None
-        for team in game.teams:
-            for player_ in team.players:
-                if player_.name == player_name:
-                    player = player_
-                    break
-            if player:
-                break
+        player = game.get_player(player_name)
         if player is None:
             continue
         if player.pitching is None:
@@ -128,11 +120,6 @@ def player_pitching_rate_stats(
     """
 
     counting_stats = player_pitching_counting_stats(player_name, games)
-    # innings_pitched_int = counting_stats["innings_pitched"].map(int)
-    # innings_pitched_frac = 10 * (
-    #     counting_stats["innings_pitched"] - innings_pitched_int
-    # )
-    # counting_stats["innings_pitched"] = innings_pitched_int + innings_pitched_frac / 3
     counting_stats["innings_pitched"] = counting_stats["innings_pitched"].map(
         __innings_pitched_as_decimal
     )
