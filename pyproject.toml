@@ -6,7 +6,7 @@ authors = [
 ]
 description = "A Python library for working with Women's Professional Baseball League (WPBL) data."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
@@ -28,3 +28,6 @@ Homepage = "https://github.com/rockysnow7/wpybl"
 [build-system]
 requires = ["uv_build >= 0.12.1, <0.13.0"]
 build-backend = "uv_build"
+
+[tool.ruff.lint]
+ignore = ["I001"]

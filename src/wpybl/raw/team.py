@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import Enum
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, BeforeValidator
+from pydantic import AfterValidator, BaseModel, Field, BeforeValidator
 from typing import Annotated, Any
 
 import re
@@ -27,15 +27,11 @@ class TeamRecord(BaseModel):
 
 
 class LineScoreInning(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     inning: Annotated[int, Field(ge=1)]
     runs: Annotated[int, Field(ge=0)]
 
 
 class TeamTotalsBatting(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     at_bats: Annotated[int, Field(ge=0, alias="ab")] = 0
     bases_on_balls: Annotated[int, Field(ge=0, alias="bb")] = 0
     intentional_bases_on_balls: Annotated[int, Field(ge=0, alias="ibb")] = 0
@@ -65,8 +61,6 @@ class TeamTotalsBatting(BaseModel):
 
 
 class TeamTotalsPitching(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     at_bats: Annotated[int, Field(ge=0, alias="ab")] = 0
     innings_pitched: Annotated[float, Field(ge=0, alias="ip")] = 0.0
     pitches: Annotated[int, Field(ge=0)] = 0
@@ -96,8 +90,6 @@ class TeamTotalsPitching(BaseModel):
 
 
 class TeamTotalsFielding(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     assists: Annotated[int, Field(ge=0, alias="a")] = 0
     catchers_interference: Annotated[int, Field(ge=0, alias="ci")] = 0
     errors: Annotated[int, Field(ge=0, alias="e")] = 0
@@ -111,8 +103,6 @@ class TeamTotalsFielding(BaseModel):
 
 
 class TeamTotals(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     runs: Annotated[int, Field(ge=0)] = 0
     hits: Annotated[int, Field(ge=0)] = 0
     errors: Annotated[int, Field(ge=0)] = 0
@@ -123,6 +113,8 @@ class TeamTotals(BaseModel):
 
 
 class PlayerPosition(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     PITCHER = "p"
     CATCHER = "c"
     FIRST_BASE = "1b"
@@ -134,6 +126,10 @@ class PlayerPosition(str, Enum):
     RIGHT_FIELD = "rf"
     DESIGNATED_HITTER = "dh"
     PINCH_HITTER = "ph"
+
+    @classmethod
+    def _missing_(cls, value) -> PlayerPosition:
+        return PlayerPosition.UNKNOWN
 
     @staticmethod
     def before_validator(value: Any) -> set[PlayerPosition] | None:
@@ -155,14 +151,18 @@ class PlayerPosition(str, Enum):
 
 
 class Hand(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     LEFT = "L"
     RIGHT = "R"
     BOTH = "B"
 
+    @classmethod
+    def _missing_(cls, value) -> Hand:
+        return Hand.UNKNOWN
+
 
 class PlayerHitting(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     at_bats: Annotated[int, Field(ge=0, alias="ab")] = 0
     runs: Annotated[int, Field(ge=0, alias="r")] = 0
     runs_batted_in: Annotated[int, Field(ge=0, alias="rbi")] = 0
@@ -191,8 +191,6 @@ class PlayerHitting(BaseModel):
 
 
 class PlayerPitching(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     at_bats: Annotated[int, Field(ge=0, alias="ab")] = 0
     innings_pitched: Annotated[float, Field(ge=0, alias="ip")] = 0.0
     pitches: Annotated[int, Field(ge=0)] = 0
@@ -224,8 +222,6 @@ class PlayerPitching(BaseModel):
 
 
 class PlayerFielding(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     assists: Annotated[int, Field(ge=0, alias="a")] = 0
     errors: Annotated[int, Field(ge=0, alias="e")] = 0
     putouts: Annotated[int, Field(ge=0, alias="po")] = 0
@@ -239,8 +235,6 @@ def str_or_none(value: str) -> str | None:
 
 
 class Player(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     id: Annotated[str | None, AfterValidator(str_or_none)] = None
     profile_url: Annotated[str | None, AfterValidator(str_or_none)] = None
     name: str
@@ -260,8 +254,6 @@ class Player(BaseModel):
 
 
 class Starter(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     name: str
     uniform: int
     position: PlayerPosition
@@ -269,8 +261,6 @@ class Starter(BaseModel):
 
 
 class Team(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     side: Side
     id: str
     team_url: str

@@ -1,6 +1,7 @@
 __pycache__/
 .venv/
 .vscode/
+.ruff_cache/
 dist/
 *.json
 *.csv

@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from .play import Play
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 from .team import Team, Player
 from .tracking_activity import TrackingActivity
 from typing import Annotated
@@ -11,13 +11,17 @@ import pandas as pd
 
 
 class GameStatus(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     FINAL = "Final"
     UPCOMING = "Upcoming"
 
+    @classmethod
+    def _missing_(cls, value) -> GameStatus:
+        return GameStatus.UNKNOWN
+
 
 class Status(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     complete: bool
     inning: Annotated[int, Field(ge=0)]
     half: str
@@ -37,8 +41,6 @@ class Status(BaseModel):
 
 
 class Game(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     game_id: str
     provider: str
     game_status: GameStatus

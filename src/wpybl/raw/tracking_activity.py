@@ -2,20 +2,34 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from .play import Half
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Annotated, Any
+from pydantic import BaseModel, Field
+from typing import Annotated
 
 
 class EventType(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     REST_RECONCILIATION = "rest_reconciliation"
+
+    @classmethod
+    def _missing_(cls, value) -> EventType:
+        return EventType.UNKNOWN
 
 
 class Kind(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     PITCH = "pitch"
     HIT = "hit"
 
+    @classmethod
+    def _missing_(cls, value) -> Kind:
+        return Kind.UNKNOWN
+
 
 class PitchType(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     UNDEFINED = "Undefined"
     SLIDER = "Slider"
     CHANGEUP = "ChangeUp"
@@ -24,26 +38,46 @@ class PitchType(str, Enum):
     FOUR_SEAM_FASTBALL = "FourSeamFastBall"
     CURVEBALL = "Curveball"
 
+    @classmethod
+    def _missing_(cls, value) -> PitchType:
+        return PitchType.UNKNOWN
+
 
 class HitType(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     UNDEFINED = "Undefined"
     GROUND_BALL = "GroundBall"
     LINE_DRIVE = "LineDrive"
     FLY_BALL = "FlyBall"
     POPUP = "Popup"
 
+    @classmethod
+    def _missing_(cls, value) -> HitType:
+        return HitType.UNKNOWN
+
 
 class SpeedUnit(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     MPH = "mph"
+
+    @classmethod
+    def _missing_(cls, value) -> SpeedUnit:
+        return SpeedUnit.UNKNOWN
 
 
 class DistanceUnit(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     FEET = "feet"
+
+    @classmethod
+    def _missing_(cls, value) -> DistanceUnit:
+        return DistanceUnit.UNKNOWN
 
 
 class TrackingActivity(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     activity_id: str | None = None
     game_id: str
     provider: str

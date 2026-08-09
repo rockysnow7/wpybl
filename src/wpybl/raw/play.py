@@ -1,5 +1,6 @@
+from __future__ import annotations
 from enum import Enum
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 from typing import Annotated
 
 
@@ -10,6 +11,7 @@ class Half(str, Enum):
 
 class EventType(str, Enum):
     UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     SINGLE = "single"
     DOUBLE = "double"
     TRIPLE = "triple"
@@ -29,8 +31,14 @@ class EventType(str, Enum):
     WILD_PITCH = "wild_pitch"
     HIT_BY_PITCH = "hit_by_pitch"
 
+    @classmethod
+    def _missing_(cls, value) -> EventType:
+        return EventType.UNKNOWN
+
 
 class PitchEventCode(str, Enum):
+    UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     HIT = "H"
     CALLED_STRIKE = "K"
     SWINGING_STRIKE = "S"
@@ -38,19 +46,26 @@ class PitchEventCode(str, Enum):
     PITCHOUT = "P"
     FOUL = "F"
 
+    @classmethod
+    def _missing_(cls, value) -> PitchEventCode:
+        return PitchEventCode.UNKNOWN
+
 
 class PitchEventType(str, Enum):
     UNKNOWN = "unknown"
+    """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     SWINGING_STRIKE = "swinging_strike"
     FOUL = "foul"
     PITCHOUT = "pitchout"
     BALL = "ball"
     HIT_BY_PITCH = "hit_by_pitch"
 
+    @classmethod
+    def _missing_(cls, value) -> PitchEventType:
+        return PitchEventType.UNKNOWN
+
 
 class PitchEvent(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     sequence: Annotated[int, Field(ge=1)]
     code: PitchEventCode
     type: PitchEventType
@@ -58,8 +73,6 @@ class PitchEvent(BaseModel):
 
 
 class Play(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     inning: Annotated[int, Field(ge=1)]
     half: Half
     batting_team_id: Annotated[str, Field(alias="team_id")]
