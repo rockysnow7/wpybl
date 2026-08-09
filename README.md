@@ -14,13 +14,24 @@ It aims to be equivalent to the [pybaseball](https://github.com/jldbc/pybaseball
 
 ```python
 from data import GamesCollection
-from stats.batting import player_batting_pct_stats
+from stats.batting import player_batting_rate_stats
+from stats.pitching import pitching_rate_stats
 
 if __name__ == "__main__":
     games = GamesCollection.all()
 
-    stats = player_batting_pct_stats("Amanda Gianelloni", games)
-    print(stats)
+    print(player_batting_pct_stats("Amanda Gianelloni", games))
     #      avg    obp    slg    ops
     # 0  0.455  0.538  0.727  1.266
+
+    print(pitching_rate_stats(games))
+    #                       era  whip  k/bb
+    # Alli Schroder       27.00  4.80  0.20
+    # Alyssa Zettlemoyer   0.00  1.80  0.00
+    # Andreanne Leblanc    0.00  1.00  1.00
+    # Ayami Sato           4.50  1.88  5.00
+    # ...
+
+    for game in games:
+        game.plays_to_csv(f"{game.game_id}.csv")  # saves play-by-plays to a CSV file
 ```
