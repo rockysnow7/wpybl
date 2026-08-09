@@ -6,6 +6,12 @@ A Python library for working with Women's Professional Baseball League (WPBL) da
 It aims to be equivalent to the [pybaseball](https://github.com/jldbc/pybaseball) library.
 (This is fan-made and not affiliated with the WPBL.)
 
+## Installation
+
+```bash
+pip install wpybl
+```
+
 ## Modules
 
 - `data`: Downloads and loads game data from the WPBL API.
