@@ -1,6 +1,8 @@
 # wpybl
 
-A (work-in-progress) Python library for working with Women's Professional Baseball League (WPBL) data.
+[![PyPI Latest Release](https://img.shields.io/pypi/v/wpybl.svg)](https://pypi.org/project/wpybl/)
+
+A Python library for working with Women's Professional Baseball League (WPBL) data.
 It aims to be equivalent to the [pybaseball](https://github.com/jldbc/pybaseball) library.
 (This is fan-made and not affiliated with the WPBL.)
 
