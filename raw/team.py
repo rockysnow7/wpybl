@@ -202,7 +202,7 @@ class PlayerPitching(BaseModel):
     bases_on_balls: Annotated[int, Field(ge=0, alias="bb")] = 0
     bf: Annotated[int, Field(ge=0)] = 0  # i don't know what this is. foul balls?
     bk: Annotated[int, Field(ge=0)] = 0  # i don't know what this is
-    hits: Annotated[int, Field(ge=0, alias="h")] = 0
+    hits_allowed: Annotated[int, Field(ge=0, alias="h")] = 0
     doubles_allowed: Annotated[int, Field(ge=0, alias="double")] = 0
     triples_allowed: Annotated[int, Field(ge=0, alias="triple")] = 0
     home_runs_allowed: Annotated[int, Field(ge=0, alias="hr")] = 0

@@ -8,14 +8,14 @@ def player_batting_counting_stats(
     player_name: str, games: GamesCollection
 ) -> pd.DataFrame:
     """
-    Calculates batting statistics for a particular player over a collection of games.
+    Calculates batting counting statistics for a particular player over a collection of games.
 
     Args:
         player_name (str): The name of the player to calculate statistics for.
         games (GamesCollection): The collection of games to calculate statistics over.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the player's batting statistics.
+        pd.DataFrame: A DataFrame containing the player's batting counting statistics.
     """
 
     df = {

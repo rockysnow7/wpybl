@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import date
 from glob import glob
 from raw.game import Game
+from tqdm import tqdm
 
 import bs4
 import json
@@ -54,9 +55,10 @@ def __get_all_game_ids() -> set[__GameID]:
 
 
 def _download_all_games(*, timeout: int = 1) -> None:
-    for game_id in __get_all_game_ids():
-        if not game_id.final:
-            continue
+    game_ids = __get_all_game_ids()
+    final_game_ids = [game_id for game_id in game_ids if game_id.final]
+
+    for game_id in tqdm(final_game_ids):
         __get_game_json(game_id.game_id, timeout=timeout)
 
 
