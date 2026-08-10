@@ -4,10 +4,12 @@ from wpybl.raw.play import EventType, PitchEventCode, PitchEventType
 from wpybl.raw.team import Hand, PlayerPosition
 
 
+games = GamesCollection.all()
+
+
 def test_game_status_parsing() -> None:
     """Asserts that there are no unimplemented variants of `wpybl.raw.game.GameStatus`."""
 
-    games = GamesCollection.all()
     for game in games:
         assert game.status != GameStatus.WPYBL_UNKNOWN, f"error in game {game.game_id}"
 
@@ -15,7 +17,6 @@ def test_game_status_parsing() -> None:
 def test_event_type_parsing() -> None:
     """Asserts that there are no unimplemented variants of `wpybl.raw.play.EventType`."""
 
-    games = GamesCollection.all()
     for game in games:
         for play in game.plays:
             assert play.event_type != EventType.WPYBL_UNKNOWN, (
@@ -26,7 +27,6 @@ def test_event_type_parsing() -> None:
 def test_pitch_event_code_parsing() -> None:
     """Asserts that there are no unimplemented variants of `wpybl.raw.play.PitchEventCode`."""
 
-    games = GamesCollection.all()
     for game in games:
         for play in game.plays:
             if play.pitch_events is None:
@@ -40,7 +40,6 @@ def test_pitch_event_code_parsing() -> None:
 def test_pitch_event_type_parsing() -> None:
     """Asserts that there are no unimplemented variants of `wpybl.raw.play.PitchEventType`."""
 
-    games = GamesCollection.all()
     for game in games:
         for play in game.plays:
             if play.pitch_events is None:
@@ -54,7 +53,6 @@ def test_pitch_event_type_parsing() -> None:
 def test_player_position_parsing() -> None:
     """Asserts that there are no unimplemented variants of `wpybl.raw.team.PlayerPosition`."""
 
-    games = GamesCollection.all()
     for game in games:
         for team in game.teams:
             for player in team.players:
@@ -74,7 +72,6 @@ def test_player_position_parsing() -> None:
 def test_hand_parsing() -> None:
     """Asserts that there are no unimplemented variants of `wpybl.raw.team.Hand`."""
 
-    games = GamesCollection.all()
     for game in games:
         for team in game.teams:
             for player in team.players:

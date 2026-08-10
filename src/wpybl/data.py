@@ -139,6 +139,9 @@ class GamesCollection:
     def __iter__(self) -> Iterator[Game]:
         return iter(self.games)
 
+    def __len__(self) -> int:
+        return len(self.games)
+
     def filter(
         self,
         *,
