@@ -7,28 +7,28 @@ from typing import Annotated
 
 
 class EventType(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     REST_RECONCILIATION = "rest_reconciliation"
 
     @classmethod
     def _missing_(cls, value) -> EventType:
-        return EventType.UNKNOWN
+        return EventType.WPYBL_UNKNOWN
 
 
 class Kind(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     PITCH = "pitch"
     HIT = "hit"
 
     @classmethod
     def _missing_(cls, value) -> Kind:
-        return Kind.UNKNOWN
+        return Kind.WPYBL_UNKNOWN
 
 
 class PitchType(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     UNDEFINED = "Undefined"
     SLIDER = "Slider"
@@ -40,11 +40,11 @@ class PitchType(str, Enum):
 
     @classmethod
     def _missing_(cls, value) -> PitchType:
-        return PitchType.UNKNOWN
+        return PitchType.WPYBL_UNKNOWN
 
 
 class HitType(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     UNDEFINED = "Undefined"
     GROUND_BALL = "GroundBall"
@@ -54,27 +54,27 @@ class HitType(str, Enum):
 
     @classmethod
     def _missing_(cls, value) -> HitType:
-        return HitType.UNKNOWN
+        return HitType.WPYBL_UNKNOWN
 
 
 class SpeedUnit(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     MPH = "mph"
 
     @classmethod
     def _missing_(cls, value) -> SpeedUnit:
-        return SpeedUnit.UNKNOWN
+        return SpeedUnit.WPYBL_UNKNOWN
 
 
 class DistanceUnit(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     FEET = "feet"
 
     @classmethod
     def _missing_(cls, value) -> DistanceUnit:
-        return DistanceUnit.UNKNOWN
+        return DistanceUnit.WPYBL_UNKNOWN
 
 
 class TrackingActivity(BaseModel):

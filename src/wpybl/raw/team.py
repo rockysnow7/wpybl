@@ -113,7 +113,7 @@ class TeamTotals(BaseModel):
 
 
 class PlayerPosition(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     PITCHER = "p"
     CATCHER = "c"
@@ -126,10 +126,11 @@ class PlayerPosition(str, Enum):
     RIGHT_FIELD = "rf"
     DESIGNATED_HITTER = "dh"
     PINCH_HITTER = "ph"
+    PINCH_RUNNER = "pr"
 
     @classmethod
     def _missing_(cls, value) -> PlayerPosition:
-        return PlayerPosition.UNKNOWN
+        return PlayerPosition.WPYBL_UNKNOWN
 
     @staticmethod
     def before_validator(value: Any) -> set[PlayerPosition] | None:
@@ -151,7 +152,7 @@ class PlayerPosition(str, Enum):
 
 
 class Hand(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     LEFT = "L"
     RIGHT = "R"
@@ -159,7 +160,7 @@ class Hand(str, Enum):
 
     @classmethod
     def _missing_(cls, value) -> Hand:
-        return Hand.UNKNOWN
+        return Hand.WPYBL_UNKNOWN
 
 
 class PlayerHitting(BaseModel):

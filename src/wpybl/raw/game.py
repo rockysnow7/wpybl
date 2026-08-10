@@ -11,7 +11,7 @@ import pandas as pd
 
 
 class GameStatus(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     FINAL = "Final"
     UPCOMING = "Upcoming"
@@ -25,7 +25,7 @@ class GameStatus(str, Enum):
                 return GameStatus.FINAL
             if value.lower().startswith("upcoming"):
                 return GameStatus.UPCOMING
-        return GameStatus.UNKNOWN
+        return GameStatus.WPYBL_UNKNOWN
 
 
 class Status(BaseModel):

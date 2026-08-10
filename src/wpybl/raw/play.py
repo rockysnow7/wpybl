@@ -10,8 +10,9 @@ class Half(str, Enum):
 
 
 class EventType(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
+    UNKNOWN = "unknown"
     SINGLE = "single"
     DOUBLE = "double"
     TRIPLE = "triple"
@@ -33,11 +34,11 @@ class EventType(str, Enum):
 
     @classmethod
     def _missing_(cls, value) -> EventType:
-        return EventType.UNKNOWN
+        return EventType.WPYBL_UNKNOWN
 
 
 class PitchEventCode(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     HIT = "H"
     CALLED_STRIKE = "K"
@@ -48,12 +49,13 @@ class PitchEventCode(str, Enum):
 
     @classmethod
     def _missing_(cls, value) -> PitchEventCode:
-        return PitchEventCode.UNKNOWN
+        return PitchEventCode.WPYBL_UNKNOWN
 
 
 class PitchEventType(str, Enum):
-    UNKNOWN = "unknown"
+    WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
+    UNKNOWN = "unknown"
     SWINGING_STRIKE = "swinging_strike"
     FOUL = "foul"
     PITCHOUT = "pitchout"
@@ -62,7 +64,7 @@ class PitchEventType(str, Enum):
 
     @classmethod
     def _missing_(cls, value) -> PitchEventType:
-        return PitchEventType.UNKNOWN
+        return PitchEventType.WPYBL_UNKNOWN
 
 
 class PitchEvent(BaseModel):
