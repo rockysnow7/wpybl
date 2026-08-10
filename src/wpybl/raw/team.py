@@ -271,3 +271,11 @@ class Team(BaseModel):
     totals: TeamTotals
     players: list[Player]
     starters: list[Starter]
+
+    def has_player(self, player_name: str) -> bool:
+        return any(player.name == player_name for player in self.players)
+
+    def get_player(self, player_name: str) -> Player | None:
+        for player in self.players:
+            if player.name == player_name:
+                return player

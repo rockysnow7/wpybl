@@ -1,7 +1,8 @@
 """Functions to download and load game data from the WPBL API."""
 
 from __future__ import annotations
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date
 from glob import glob
@@ -68,7 +69,7 @@ def _download_all_games(*, timeout: int = 1) -> None:
 
 
 class GamesCollection:
-    """A collection of games, upon which statistics can be calculated."""
+    """An unordered collection of games, upon which statistics can be calculated."""
 
     def __init__(self, games: list[Game]) -> None:
         self.games = games
@@ -137,3 +138,48 @@ class GamesCollection:
 
     def __iter__(self) -> Iterator[Game]:
         return iter(self.games)
+
+    def filter(
+        self,
+        *,
+        has_id: str | None = None,
+        has_team: str | None = None,
+        has_player: str | None = None,
+        custom: Callable[[Game], bool] | list[Callable[[Game], bool]] | None = None,
+    ) -> GamesCollection:
+        """
+        Returns a new GamesCollection containing only games that match the specified filters.
+        If no filters are specified, the original GamesCollection is returned.
+
+        Args:
+            has_id (str, optional): If specified, only the game with the given ID will be included in the new GamesCollection. Defaults to None.
+            has_team (str, optional): If specified, only games involving the given team will be included in the new GamesCollection. Defaults to None.
+            has_player (str, optional): If specified, only games involving the given player will be included in the new GamesCollection. Defaults to None.
+            custom (Callable[[Game], bool] | list[Callable[[Game], bool]], optional): If specified, only games that match the given custom filter(s) will be included in the new GamesCollection. Defaults to None.
+
+        Returns:
+            GamesCollection: A new GamesCollection containing only games that match the specified filters.
+        """
+
+        games = deepcopy(self.games)
+
+        if has_id is not None:
+            games = [game for game in self.games if game.game_id == has_id]
+        if has_team is not None:
+            games = [
+                game
+                for game in self.games
+                if any(team.name == has_team for team in game.teams)
+            ]
+        if has_player is not None:
+            games = [
+                game
+                for game in self.games
+                if any(team.has_player(has_player) for team in game.teams)
+            ]
+        if custom is not None:
+            if not isinstance(custom, list):
+                custom = [custom]
+            games = [game for game in self.games if any(f(game) for f in custom)]
+
+        return GamesCollection(games)

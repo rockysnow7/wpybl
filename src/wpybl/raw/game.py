@@ -64,15 +64,30 @@ class Game(BaseModel):
             raise ValueError("JSON does not contain a boxscore")
         return Game.model_validate(json["boxscore"])
 
+    def get_team(self, team_name: str) -> Team | None:
+        for team in self.teams:
+            if team.name == team_name:
+                return team
+
     def get_player(self, player_name: str) -> Player | None:
         for team in self.teams:
             for player in team.players:
                 if player.name == player_name:
                     return player
 
-    def plays_to_csv(self, path: str) -> None:
-        """Converts the game's plays to a CSV file and saves it to the specified path."""
+    def plays_to_df(self, *, save_to_path: str | None = None) -> pd.DataFrame:
+        """
+        Converts the game's play-by-play records to a pandas DataFrame and optionally saves it to a CSV file at the specified path.
+
+        Args:
+            save_to_path (str, optional): If specified, the DataFrame will be saved to the specified path as a CSV file. Defaults to None.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the game's plays.
+        """
 
         rows = [play.to_csv_row() for play in self.plays]
-        df = pd.DataFrame(rows)
-        df.to_csv(path, index=False)
+        df = pd.DataFrame(rows).set_index("sequence")
+        if save_to_path is not None:
+            df.to_csv(save_to_path)
+        return df
