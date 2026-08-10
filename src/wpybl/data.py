@@ -51,7 +51,10 @@ def __get_all_game_ids() -> set[__GameID]:
         a = tds[2].find("a")
         game_id = a["href"].split("/")[-1]
         status = tds[3].text
-        game_ids.add(__GameID(game_id=game_id, final=status.lower() == "final"))
+        final = status.lower().startswith(
+            "final"
+        )  # regular games say "final", extra-innings games say "final - <number> innings"
+        game_ids.add(__GameID(game_id=game_id, final=final))
 
     return game_ids
 

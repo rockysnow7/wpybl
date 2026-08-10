@@ -18,6 +18,13 @@ class GameStatus(str, Enum):
 
     @classmethod
     def _missing_(cls, value) -> GameStatus:
+        if isinstance(value, str):
+            if value.lower().startswith(
+                "final"
+            ):  # extra-innings games have the format "Final - <number> innings"
+                return GameStatus.FINAL
+            if value.lower().startswith("upcoming"):
+                return GameStatus.UPCOMING
         return GameStatus.UNKNOWN
 
 
