@@ -112,3 +112,14 @@ class TrackingActivity(BaseModel):
     plate_location_side: float
     created_at: datetime
     updated_at: datetime
+
+    def includes_hit(self) -> bool:
+        """Returns True if the TrackingActivity includes a hit, otherwise False."""
+
+        return (
+            self.hit_type is not None
+            and self.exit_speed is not None
+            and self.distance is not None
+            and self.launch_angle_deg is not None
+            and self.horizontal_angle_deg is not None
+        )
