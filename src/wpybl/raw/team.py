@@ -128,6 +128,13 @@ class PlayerPosition(str, Enum):
     PINCH_HITTER = "ph"
     PINCH_RUNNER = "pr"
 
+    @staticmethod
+    def position_re() -> str:
+        values = list(PlayerPosition.__members__.values())
+        values.remove(PlayerPosition.WPYBL_UNKNOWN)
+        position_re = "|".join(re.escape(value) for value in values)
+        return f"({position_re})"
+
     @classmethod
     def _missing_(cls, value) -> PlayerPosition:
         return PlayerPosition.WPYBL_UNKNOWN
@@ -139,7 +146,7 @@ class PlayerPosition(str, Enum):
         if not value:
             return None
 
-        position_re = "|".join(map(re.escape, PlayerPosition.__members__.values()))
+        position_re = PlayerPosition.position_re()
         full_re = re.compile(f"^{position_re}(/{position_re})*$")
         if not full_re.match(value):
             raise ValueError(
