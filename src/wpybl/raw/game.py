@@ -207,7 +207,9 @@ class Game(BaseModel):
                 half=play.half,
                 batting_team_id=play.batting_team_id,
                 sequence=play.sequence,
+                batter_id=play.batter_id,
                 batter_name=play.batter_name,
+                pitcher_id=play.pitcher_id,
                 pitcher_name=play.pitcher_name,
                 outs=play.outs,
                 first_base=play.first_base,
@@ -243,6 +245,34 @@ class Game(BaseModel):
 
         rows = [play.to_csv_row() for play in self.plays]
         df = pd.DataFrame(rows).set_index("sequence")
+        if save_to_path is not None:
+            df.to_csv(save_to_path)
+        return df
+
+    def detailed_plays_to_df(
+        self, *, save_to_path: str | None = None
+    ) -> pd.DataFrame | None:
+        """
+        Converts the game's detailed play records to a pandas DataFrame and optionally saves it to a CSV file at the specified path.
+        If the game cannot generate detailed play records, returns None and does not save anything.
+
+        Args:
+            save_to_path (str, optional): If specified, the DataFrame will be saved to the specified path as a CSV file. Defaults to None.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the game's detailed play records.
+        """
+
+        plays = self.detailed_plays()
+        if not plays:
+            return None
+
+        all_rows = []
+        for play in plays:
+            play_rows = play.to_csv_rows()
+            all_rows.extend(play_rows)
+
+        df = pd.DataFrame(all_rows).set_index(["sequence", "pitch_sequence"])
         if save_to_path is not None:
             df.to_csv(save_to_path)
         return df

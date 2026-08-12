@@ -34,7 +34,7 @@ class EventType(str, Enum):
     CAUGHT_STEALING = "caught_stealing"
     WILD_PITCH = "wild_pitch"
     HIT_BY_PITCH = "hit_by_pitch"
-    # the API uses the UNKNOWN variant for the below events, but it's more helfpul to have these custom variants; these are set in `Play.fix_event_type`; if the API introduces its own version of any of these variants, they will need to be updated
+    # the API uses the UNKNOWN variant for the below events, but it's more helfpul to have these custom variants; these are set in `Play.fix_unknowns`; if the API introduces its own version of any of these variants, they will need to be updated
     REACH_ON_ERROR = "reach_on_error"
     BALK = "balk"
     SUBSTITUTION = "substitution"
@@ -65,6 +65,7 @@ class PitchEventType(str, Enum):
     WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     UNKNOWN = "unknown"
+    CALLED_STRIKE = "called_strike"  # the API uses the UNKNOWN variant for this event, but it's more helpful to have this custom variant; this is set in `Play.fix_unknowns`; if the API introduces its own version of this, then this will need to be updated
     SWINGING_STRIKE = "swinging_strike"
     FOUL = "foul"
     PITCHOUT = "pitchout"
@@ -110,38 +111,46 @@ class Play(BaseModel):
     final_strikes: Annotated[int, Field(ge=0, le=3, alias="strikes")]
 
     @model_validator(mode="after")
-    def fix_event_type(self) -> Play:
-        if self.event_type != EventType.UNKNOWN:
-            return self
+    def fix_unknowns(self) -> Play:
+        if self.event_type == EventType.UNKNOWN:
+            narrative = self.narrative.lower()
+            if "on an error" in narrative or re.search(
+                "advanced to (second|third|home) on the throw", narrative
+            ):
+                self.event_type = EventType.REACH_ON_ERROR
+            elif "on a balk" in narrative:
+                self.event_type = EventType.BALK
+            elif (
+                re.search(f"to {PlayerPosition.position_re()}", narrative)
+                or "pinch hit for" in narrative
+                or "pinch ran for" in narrative
+            ):
+                self.event_type = EventType.SUBSTITUTION
+            elif "failed pickoff attempt" in narrative:
+                self.event_type = EventType.FAILED_PICKOFF_ATTEMPT
+            elif "placed on second" in narrative:
+                self.event_type = EventType.GHOST_RUNNER_PLACEMENT
 
-        narrative = self.narrative.lower()
-        if "on an error" in narrative or re.search(
-            "advanced to (second|third|home) on the throw", narrative
-        ):
-            self.event_type = EventType.REACH_ON_ERROR
-        elif "on a balk" in narrative:
-            self.event_type = EventType.BALK
-        elif (
-            re.search(f"to {PlayerPosition.position_re()}", narrative)
-            or "pinch hit for" in narrative
-            or "pinch ran for" in narrative
-        ):
-            self.event_type = EventType.SUBSTITUTION
-        elif "failed pickoff attempt" in narrative:
-            self.event_type = EventType.FAILED_PICKOFF_ATTEMPT
-        elif "placed on second" in narrative:
-            self.event_type = EventType.GHOST_RUNNER_PLACEMENT
+        if self.pitch_events is not None:
+            for pitch in self.pitch_events:
+                if (
+                    pitch.type == PitchEventType.UNKNOWN
+                    and pitch.code == PitchEventCode.CALLED_STRIKE
+                ):
+                    pitch.type = PitchEventType.CALLED_STRIKE
 
         return self
 
-    def to_csv_row(self) -> dict[str, str | int | float]:
+    def to_csv_row(self) -> dict[str, str | int | float | None]:
         return {
             "sequence": self.sequence,
             "inning": self.inning,
             "half": self.half.value,
             "outs": self.outs,
             "batting_team_id": self.batting_team_id,
+            "batter_id": self.batter_id,
             "batter_name": self.batter_name,
+            "pitcher_id": self.pitcher_id,
             "pitcher_name": self.pitcher_name,
             "first_base": self.first_base,
             "second_base": self.second_base,
