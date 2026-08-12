@@ -54,3 +54,5 @@ if __name__ == "__main__":
     for game in games:
         game.plays_to_csv(f"{game.game_id}.csv")  # saves play-by-plays to a CSV file
 ```
+
+(For more examples, see the [examples](https://github.com/rockysnow7/wpybl/tree/main/examples) directory.)
