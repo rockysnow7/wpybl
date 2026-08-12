@@ -124,8 +124,11 @@ class GamesCollection:
         for path in tqdm(glob(".wpybl_data/*.json"), desc="Loading games"):
             with open(path) as f:
                 data = json.load(f)
-            game = Game.from_json(data)
-            games.append(game)
+            try:
+                game = Game.from_json(data)
+                games.append(game)
+            except:
+                print(f"Failed to load {path}")
 
         if not games:
             if offline:
