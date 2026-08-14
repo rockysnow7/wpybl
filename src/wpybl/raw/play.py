@@ -33,6 +33,7 @@ class EventType(str, Enum):
     STOLEN_BASE = "stolen_base"
     CAUGHT_STEALING = "caught_stealing"
     WILD_PITCH = "wild_pitch"
+    PASSED_BALL = "passed_ball"
     HIT_BY_PITCH = "hit_by_pitch"
     # the API uses the UNKNOWN variant for the below events, but it's more helfpul to have these custom variants; these are set in `Play.fix_unknowns`; if the API introduces its own version of any of these variants, they will need to be updated
     REACH_ON_ERROR = "reach_on_error"
