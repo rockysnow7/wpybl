@@ -14,7 +14,7 @@ TEAM_IDS = {
 }
 
 
-def current_standings() -> pd.DataFrame:
+def standings() -> pd.DataFrame:
     """Fetches the current standings."""
 
     url = "https://stats.womensprobaseballleague.com"
