@@ -1,11 +1,13 @@
 """Functions to download and load game data from the WPBL API."""
 
 from __future__ import annotations
+from .cache import _get_url, _WPYBL_DATA_DIR
 from collections.abc import Callable, Iterator
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date
 from glob import glob
+from pydantic import ValidationError
 from .raw.game import Game
 from tqdm import tqdm
 
@@ -15,19 +17,23 @@ import os
 import requests
 
 
+_GAMES_DIR = f"{_WPYBL_DATA_DIR}/games"
+if not os.path.exists(_GAMES_DIR):
+    os.makedirs(_GAMES_DIR)
+
 __API_URL = "https://stats.womensprobaseballleague.com/v1/games/{game_id}/boxscore"
 
 
 def __get_game_json(game_id: str, *, timeout: int = 1) -> None:
     """Fetches the game JSON from the API and saves it to a file. If the file already exists, it does nothing."""
 
-    if os.path.exists(f".wpybl_data/{game_id}.json"):
+    if os.path.exists(f"{_GAMES_DIR}/{game_id}.json"):
         return
 
     url = __API_URL.format(game_id=game_id)
     game = requests.get(url, timeout=timeout).json()
-    os.makedirs(".wpybl_data", exist_ok=True)
-    with open(f".wpybl_data/{game_id}.json", "w") as f:
+    os.makedirs(_GAMES_DIR, exist_ok=True)
+    with open(f"{_GAMES_DIR}/{game_id}.json", "w") as f:
         json.dump(game, f, indent=4)
 
 
@@ -42,15 +48,15 @@ class __GameID:
 
 def __get_all_game_ids() -> set[__GameID]:
     url = "https://stats.womensprobaseballleague.com/explorer/games"
-    html = requests.get(url).text
-    soup = bs4.BeautifulSoup(html, "html.parser")
+    text = _get_url(url)
+    soup = bs4.BeautifulSoup(text, "html.parser")
     game_ids = set()
 
-    tbody = soup.find("table", attrs={"class": "data-table fan-table"}).find("tbody")
-    for tr in tbody.find_all("tr"):
+    tbody = soup.find("table", attrs={"class": "data-table fan-table"}).find("tbody")  # type: ignore
+    for tr in tbody.find_all("tr"):  # type: ignore
         tds = tr.find_all("td")
         a = tds[2].find("a")
-        game_id = a["href"].split("/")[-1]
+        game_id = a["href"].split("/")[-1]  # type: ignore
         status = tds[3].text
         final = status.lower().startswith(
             "final"
@@ -75,7 +81,7 @@ class GamesCollection:
         self.games = games
 
     @staticmethod
-    def date_range(start: date, end: date, *, offline: bool = False) -> GamesCollection:
+    def date_range(start: date, end: date) -> GamesCollection:
         """
         Returns a GamesCollection containing all games from between the start and end dates (inclusive).
 
@@ -85,14 +91,12 @@ class GamesCollection:
         Args:
             start (date): The start date (inclusive).
             end (date): The end date (inclusive).
-            offline (bool, optional): If True, new games will not be downloaded. Defaults to False.
         """
 
-        if not offline:
-            _download_all_games()
+        _download_all_games()
 
         games = []
-        for path in tqdm(glob(".wpybl_data/*.json"), desc="Loading games"):
+        for path in tqdm(glob(f"{_GAMES_DIR}/*.json"), desc="Loading games"):
             with open(path) as f:
                 data = json.load(f)
             game = Game.from_json(data)
@@ -100,41 +104,27 @@ class GamesCollection:
                 games.append(game)
 
         if not games:
-            if offline:
-                raise ValueError(
-                    f"No games found. Try running `GamesCollection.date_range({start}, {end}, offline=False)` to download games."
-                )
             raise ValueError("No games found.")  # this should not be possible
 
         return GamesCollection(games)
 
     @staticmethod
-    def all(*, offline: bool = False) -> GamesCollection:
-        """
-        Returns a GamesCollection containing all games.
+    def all() -> GamesCollection:
+        """Returns a GamesCollection containing all games."""
 
-        Args:
-            offline (bool, optional): If True, new games will not be downloaded. Defaults to False.
-        """
-
-        if not offline:
-            _download_all_games()
+        _download_all_games()
 
         games = []
-        for path in tqdm(glob(".wpybl_data/*.json"), desc="Loading games"):
+        for path in tqdm(glob(f"{_GAMES_DIR}/*.json"), desc="Loading games"):
             with open(path) as f:
                 data = json.load(f)
             try:
                 game = Game.from_json(data)
                 games.append(game)
-            except:
+            except (ValidationError, ValueError):
                 print(f"Failed to load {path}")
 
         if not games:
-            if offline:
-                raise ValueError(
-                    "No games found. Try running `GamesCollection.all(offline=False)` to download games."
-                )
             raise ValueError("No games found.")  # this should not be possible
 
         return GamesCollection(games)
