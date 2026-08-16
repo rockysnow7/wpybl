@@ -35,7 +35,7 @@ class EventType(str, Enum):
     WILD_PITCH = "wild_pitch"
     PASSED_BALL = "passed_ball"
     HIT_BY_PITCH = "hit_by_pitch"
-    # the API uses the UNKNOWN variant for the below events, but it's more helfpul to have these custom variants; these are set in `Play.fix_unknowns`; if the API introduces its own version of any of these variants, they will need to be updated
+    # the API uses the UNKNOWN variant for the below events, but it's more helfpul to have these custom variants; these are set in `Play.fix`; if the API introduces its own version of any of these variants, they will need to be updated
     REACH_ON_ERROR = "reach_on_error"
     BALK = "balk"
     SUBSTITUTION = "substitution"
@@ -66,7 +66,7 @@ class PitchEventType(str, Enum):
     WPYBL_UNKNOWN = "wpybl_unknown"
     """A variant indicating that the raw JSON value did not match any known variants, and that this enum needs to be updated accordingly."""
     UNKNOWN = "unknown"
-    CALLED_STRIKE = "called_strike"  # the API uses the UNKNOWN variant for this event, but it's more helpful to have this custom variant; this is set in `Play.fix_unknowns`; if the API introduces its own version of this, then this will need to be updated
+    CALLED_STRIKE = "called_strike"  # the API uses the UNKNOWN variant for this event, but it's more helpful to have this custom variant; this is set in `Play.fix`; if the API introduces its own version of this, then this will need to be updated
     SWINGING_STRIKE = "swinging_strike"
     FOUL = "foul"
     PITCHOUT = "pitchout"
@@ -112,7 +112,8 @@ class Play(BaseModel):
     final_strikes: Annotated[int, Field(ge=0, le=3, alias="strikes")]
 
     @model_validator(mode="after")
-    def fix_unknowns(self) -> Play:
+    def fix(self) -> Play:
+        # fix UNKNOWN events
         if self.event_type == EventType.UNKNOWN:
             narrative = self.narrative.lower()
             if "on an error" in narrative or re.search(
@@ -132,6 +133,7 @@ class Play(BaseModel):
             elif "placed on second" in narrative:
                 self.event_type = EventType.GHOST_RUNNER_PLACEMENT
 
+        # fix UNKNOWN pitch events
         if self.pitch_events is not None:
             for pitch in self.pitch_events:
                 if (
@@ -139,6 +141,14 @@ class Play(BaseModel):
                     and pitch.code == PitchEventCode.CALLED_STRIKE
                 ):
                     pitch.type = PitchEventType.CALLED_STRIKE
+
+        # fix `runs_scored` values
+        # the API does not count the RBI scored by the batter on a home run, so we need to extract it from the narrative;
+        # we could just `self.runs_scored += 1` on homers, but that will break if the API is fixed in the future. this method is more robust
+        if ", RBI" in self.narrative:
+            self.runs_scored = 1
+        elif (m := re.search(r"(1|2|3|4) RBI", self.narrative)) is not None:
+            self.runs_scored = int(m.group(1))
 
         return self
 
