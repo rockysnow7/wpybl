@@ -1,9 +1,11 @@
+from wpybl.cache import clear_cache
 from wpybl.data import GamesCollection
 from wpybl.raw.game import GameStatus
 from wpybl.raw.play import EventType, PitchEventCode, PitchEventType
 from wpybl.raw.team import Hand, PlayerPosition
 
 
+clear_cache()  # to always get the newest games
 games = GamesCollection.all()
 
 
