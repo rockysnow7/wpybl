@@ -3,6 +3,7 @@
 import pandas as pd
 
 from ..data import GamesCollection
+from ..stats.teams import players, standings
 
 
 def __innings_pitched_as_decimal(innings_pitched: float) -> float:
@@ -150,21 +151,30 @@ def pitching_rate_stats(
 
     Args:
         games (GamesCollection): The collection of games to calculate the statistics over.
-        filter_qualified (bool, optional): If True, only calculates statistics for qualified players (those with at least 1 inning pitched per game). Defaults to True.
+        filter_qualified (bool, optional): If True, only calculates statistics for qualified players (those with at least 1 inning pitched per team game). Defaults to True.
 
     Returns:
         pd.DataFrame: A DataFrame containing all players' pitching rate statistics.
     """
 
     counting_stats = pitching_counting_stats(games)
-    if filter_qualified:
-        counting_stats = counting_stats[
-            (counting_stats["innings_pitched"] / counting_stats["games"]) >= 1
-        ]
-
     counting_stats["innings_pitched"] = counting_stats["innings_pitched"].map(
         __innings_pitched_as_decimal
     )
+
+    # get team games per player
+    merged = players().reset_index().set_index("Player")
+    merged = merged.merge(counting_stats, left_index=True, right_index=True)
+    standings_ = standings()
+    standings_["team_games"] = standings_["W"] + standings_["L"] + standings_["T"]
+    merged = merged.merge(standings_, left_on="Team", right_index=True)
+    merged = merged[["innings_pitched", "team_games"]]
+    merged["qualified"] = (merged["innings_pitched"] / merged["team_games"]) >= 1
+    merged = merged[["qualified"]]
+    counting_stats = counting_stats.merge(merged, left_index=True, right_index=True)
+
+    if filter_qualified:
+        counting_stats = counting_stats[counting_stats["qualified"]]
 
     era = 9 * counting_stats["earned_runs_allowed"] / counting_stats["innings_pitched"]
     whip = (
@@ -176,6 +186,7 @@ def pitching_rate_stats(
         "era": era,
         "whip": whip,
         "k/bb": k_per_bb,
+        "qualified": counting_stats["qualified"],
     }
 
     df = {k: round(v, 2) for k, v in df.items()}

@@ -1,9 +1,10 @@
 """Functions to calculate batting statistics from game data."""
 
-import pandas as pd
-
 from ..data import GamesCollection
 from ..raw.play import EventType
+from ..stats.teams import players, standings
+
+import pandas as pd
 
 
 def player_batting_counting_stats(
@@ -231,17 +232,27 @@ def batting_rate_stats(
 
     Args:
         games (GamesCollection): The collection of games to calculate the statistics over.
-        filter_qualified (bool, optional): If True, only calculates statistics for qualified players (those with at least 3.1 plate appearances per game). Defaults to True.
+        filter_qualified (bool, optional): If True, only calculates statistics for qualified players (those with at least 3.1 plate appearances per team game). Defaults to True.
 
     Returns:
         pd.DataFrame: A DataFrame containing all players' batting rate statistics.
     """
 
     counting_stats = batting_counting_stats(games)
+
+    # get team games per player
+    merged = players().reset_index().set_index("Player")
+    merged = merged.merge(counting_stats, left_index=True, right_index=True)
+    standings_ = standings()
+    standings_["team_games"] = standings_["W"] + standings_["L"] + standings_["T"]
+    merged = merged.merge(standings_, left_on="Team", right_index=True)
+    merged = merged[["plate_appearances", "team_games"]]
+    merged["qualified"] = (merged["plate_appearances"] / merged["team_games"]) >= 3.1
+    merged = merged[["qualified"]]
+    counting_stats = counting_stats.merge(merged, left_index=True, right_index=True)
+
     if filter_qualified:
-        counting_stats = counting_stats[
-            (counting_stats["at_bats"] / counting_stats["games"]) >= 3.1
-        ]
+        counting_stats = counting_stats[counting_stats["qualified"]]
 
     avg = counting_stats["hits"] / counting_stats["at_bats"]
     obp = (
@@ -267,6 +278,7 @@ def batting_rate_stats(
         "obp": obp,
         "slg": slg,
         "ops": ops,
+        "qualified": counting_stats["qualified"],
     }
 
     df = {k: round(v, 3) for k, v in df.items()}
