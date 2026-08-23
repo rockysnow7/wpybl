@@ -6,12 +6,22 @@ from ..data import GamesCollection
 from ..stats.teams import players, standings
 
 
-def __innings_pitched_as_decimal(innings_pitched: float) -> float:
+def __innings_pitched_fractional_to_decimal(innings_pitched: float) -> float:
     """Converts a fractional innings pitched value to a decimal value (e.g., 3.2 to 3.66666...)."""
 
     innings_pitched_int = int(innings_pitched)
     innings_pitched_frac = 10 * (innings_pitched - innings_pitched_int)
     ip = innings_pitched_int + innings_pitched_frac / 3
+
+    return ip
+
+
+def __innings_pitched_decimal_to_fractional(innings_pitched: float) -> float:
+    """Converts a decimal innings pitched value to a fractional value (e.g., 3.66666... to 3.2)."""
+
+    innings_pitched_int = int(innings_pitched)
+    innings_pitched_frac = int(3 * (innings_pitched - innings_pitched_int))
+    ip = innings_pitched_int + innings_pitched_frac / 10
 
     return ip
 
@@ -48,14 +58,18 @@ def player_pitching_counting_stats(
             continue
 
         df["games"] += 1
-        df["innings_pitched"] += player.pitching.innings_pitched
+        df["innings_pitched"] += __innings_pitched_fractional_to_decimal(
+            player.pitching.innings_pitched
+        )
         df["hits_allowed"] += player.pitching.hits_allowed
         df["runs_allowed"] += player.pitching.runs_allowed
         df["earned_runs_allowed"] += player.pitching.earned_runs_allowed
         df["bases_on_balls"] += player.pitching.bases_on_balls
         df["strikeouts"] += player.pitching.strikeouts
 
-    df["innings_pitched"] = round(df["innings_pitched"], 1)
+    df["innings_pitched"] = __innings_pitched_decimal_to_fractional(
+        df["innings_pitched"]
+    )
 
     return pd.DataFrame([df])
 
@@ -90,7 +104,11 @@ def pitching_counting_stats(games: GamesCollection) -> pd.DataFrame:
                     }
 
                 df[player.name]["games"] += 1
-                df[player.name]["innings_pitched"] += player.pitching.innings_pitched
+                df[player.name]["innings_pitched"] += (
+                    __innings_pitched_fractional_to_decimal(
+                        player.pitching.innings_pitched
+                    )
+                )
                 df[player.name]["hits_allowed"] += player.pitching.hits_allowed
                 df[player.name]["runs_allowed"] += player.pitching.runs_allowed
                 df[player.name]["earned_runs_allowed"] += (
@@ -101,7 +119,9 @@ def pitching_counting_stats(games: GamesCollection) -> pd.DataFrame:
 
     df = pd.DataFrame(df).T.sort_index()
 
-    df["innings_pitched"] = df["innings_pitched"].map(lambda x: round(x, 1))
+    df["innings_pitched"] = df["innings_pitched"].map(
+        __innings_pitched_decimal_to_fractional
+    )
     cols = df.columns.difference(["innings_pitched"])
     df[cols] = df[cols].astype(int)
 
@@ -124,7 +144,7 @@ def player_pitching_rate_stats(
 
     counting_stats = player_pitching_counting_stats(player_name, games)
     counting_stats["innings_pitched"] = counting_stats["innings_pitched"].map(
-        __innings_pitched_as_decimal
+        __innings_pitched_fractional_to_decimal
     )
 
     era = 9 * counting_stats["earned_runs_allowed"] / counting_stats["innings_pitched"]
@@ -159,7 +179,7 @@ def pitching_rate_stats(
 
     counting_stats = pitching_counting_stats(games)
     counting_stats["innings_pitched"] = counting_stats["innings_pitched"].map(
-        __innings_pitched_as_decimal
+        __innings_pitched_fractional_to_decimal
     )
 
     # get team games per player
