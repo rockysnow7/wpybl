@@ -59,7 +59,6 @@ def _get_plays_for_re24(all_plays: pd.DataFrame) -> pd.DataFrame:
 
 def calculate_re24(all_plays: pd.DataFrame) -> pd.DataFrame:
     all_plays = _get_plays_for_re24(all_plays)
-    all_plays.to_csv("new.csv", index=False)
 
     all_plays["runs_remaining"] = all_plays.groupby(["game_id", "inning", "half"])[
         "runs_scored"
