@@ -3,6 +3,15 @@
 from ..data import GamesCollection
 from ..raw.play import EventType
 from ..stats.teams import players, standings
+from ._woba_utils import (
+    get_all_plays,
+    calculate_re24,
+    calculate_run_values_and_counts,
+    calculate_league_woba,
+    calculate_league_obp,
+    calculate_woba_weights,
+    calculate_woba,
+)
 
 import pandas as pd
 
@@ -213,11 +222,31 @@ def player_batting_rate_stats(player_name: str, games: GamesCollection) -> pd.Da
     ) / counting_stats["at_bats"]
     ops = obp + slg
 
+    all_plays = get_all_plays(games)
+    re24 = calculate_re24(all_plays)
+    run_values, event_type_counts = calculate_run_values_and_counts(all_plays, re24)
+    league_woba = calculate_league_woba(run_values, event_type_counts)
+    league_obp = calculate_league_obp(event_type_counts)
+    weights = calculate_woba_weights(run_values, league_woba, league_obp)
+    woba = calculate_woba(
+        weights,
+        counting_stats["bases_on_balls"],
+        counting_stats["hit_by_pitches"],
+        counting_stats["singles"],
+        counting_stats["doubles"],
+        counting_stats["triples"],
+        counting_stats["home_runs"],
+        counting_stats["at_bats"],
+        counting_stats["sacrifice_flies"],
+    )
+    print(woba)
+
     df = {
         "avg": avg,
         "obp": obp,
         "slg": slg,
         "ops": ops,
+        "woba": woba,
     }
 
     df = {k: round(v, 3) for k, v in df.items()}
@@ -273,11 +302,30 @@ def batting_rate_stats(
     ) / counting_stats["at_bats"]
     ops = obp + slg
 
+    all_plays = get_all_plays(games)
+    re24 = calculate_re24(all_plays)
+    run_values, event_type_counts = calculate_run_values_and_counts(all_plays, re24)
+    league_woba = calculate_league_woba(run_values, event_type_counts)
+    league_obp = calculate_league_obp(event_type_counts)
+    weights = calculate_woba_weights(run_values, league_woba, league_obp)
+    woba = calculate_woba(
+        weights,
+        counting_stats["bases_on_balls"],
+        counting_stats["hit_by_pitches"],
+        counting_stats["singles"],
+        counting_stats["doubles"],
+        counting_stats["triples"],
+        counting_stats["home_runs"],
+        counting_stats["at_bats"],
+        counting_stats["sacrifice_flies"],
+    )
+
     df = {
         "avg": avg,
         "obp": obp,
         "slg": slg,
         "ops": ops,
+        "woba": woba,
         "qualified": counting_stats["qualified"],
     }
 
