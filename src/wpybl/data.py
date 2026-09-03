@@ -1,10 +1,9 @@
 """Functions to download and load game data from the WPBL API."""
 
 from __future__ import annotations
-from .cache import _get_url, _WPYBL_DATA_DIR
+from .cache import _get_url, _get_urls, _WPYBL_DATA_DIR
 from collections.abc import Callable, Iterator
 from copy import deepcopy
-from dataclasses import dataclass
 from datetime import date
 from glob import glob
 from pydantic import ValidationError
@@ -37,41 +36,36 @@ def __get_game_json(game_id: str, *, timeout: int = 1) -> None:
         json.dump(game, f, indent=4)
 
 
-@dataclass
-class __GameID:
-    game_id: str
-    final: bool
+def __get_all_game_ids() -> set[str]:
+    schedule_url = (
+        "https://www.womensprobaseballleague.com/wp-json/wpbl/v1/calendar-events"
+    )
+    schedule_json = json.loads(_get_url(schedule_url))  # type: ignore
+    completed_games_urls = {
+        game["url"]
+        for game in schedule_json
+        if game["extendedProps"]["status"] == "final"
+    }
 
-    def __hash__(self):
-        return hash((self.game_id, self.final))
-
-
-def __get_all_game_ids() -> set[__GameID]:
-    url = "https://stats.womensprobaseballleague.com/explorer/games"
-    text = _get_url(url)
-    soup = bs4.BeautifulSoup(text, "html.parser")
+    texts = _get_urls(
+        list(completed_games_urls),
+        cache_forever=True,
+        tqdm_desc="Fetching schedule",
+    )
     game_ids = set()
-
-    tbody = soup.find("table", attrs={"class": "data-table fan-table"}).find("tbody")  # type: ignore
-    for tr in tbody.find_all("tr"):  # type: ignore
-        tds = tr.find_all("td")
-        a = tds[2].find("a")
-        game_id = a["href"].split("/")[-1]  # type: ignore
-        status = tds[3].text
-        final = status.lower().startswith(
-            "final"
-        )  # regular games say "final", extra-innings games say "final - <number> innings"
-        game_ids.add(__GameID(game_id=game_id, final=final))
-
+    for text in texts:
+        soup = bs4.BeautifulSoup(text, "html.parser")
+        game_id = soup.find("section", attrs={"data-game-id": True})["data-game-id"]  # type: ignore
+        game_ids.add(game_id)
     return game_ids
 
 
 def _download_all_games(*, timeout: int = 1) -> None:
     game_ids = __get_all_game_ids()
-    final_game_ids = [game_id for game_id in game_ids if game_id.final]
+    final_game_ids = [game_id for game_id in game_ids]
 
     for game_id in tqdm(final_game_ids, desc="Downloading games"):
-        __get_game_json(game_id.game_id, timeout=timeout)
+        __get_game_json(game_id, timeout=timeout)
 
 
 class GamesCollection:
